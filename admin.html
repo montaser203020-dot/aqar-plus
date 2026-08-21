@@ -117,6 +117,12 @@ button:disabled {
     object-fit: cover;
 }
 
+hr {
+    margin: 25px 0;
+    border: 0;
+    border-top: 1px solid #e0eff1;
+}
+
 </style>
 
 </head>
@@ -125,9 +131,10 @@ button:disabled {
 
 <div class="container">
 
-<!-- ========================= -->
-<!-- تسجيل الدخول -->
-<!-- ========================= -->
+
+<!-- ==========================================
+     تسجيل الدخول
+========================================== -->
 
 <div class="box" id="loginBox">
 
@@ -153,6 +160,7 @@ type="email"
 value="montaser203020@gmail.com"
 readonly>
 
+
 <label>
 كلمة المرور
 </label>
@@ -162,6 +170,7 @@ id="loginPassword"
 type="password"
 required
 placeholder="اكتب كلمة المرور">
+
 
 <button
 id="loginButton"
@@ -176,9 +185,9 @@ type="submit">
 </div>
 
 
-<!-- ========================= -->
-<!-- لوحة التحكم -->
-<!-- ========================= -->
+<!-- ==========================================
+     لوحة التحكم
+========================================== -->
 
 <div class="box" id="adminBox">
 
@@ -190,6 +199,7 @@ type="submit">
 لوحة التحكم الخاصة بك
 </p>
 
+
 <button
 class="logout"
 id="logoutButton"
@@ -199,7 +209,8 @@ type="button">
 
 </button>
 
-<hr style="margin:25px 0;border:0;border-top:1px solid #e0eff1;">
+
+<hr>
 
 
 <div id="message"></div>
@@ -207,6 +218,8 @@ type="button">
 
 <form id="propertyForm">
 
+
+<!-- العنوان -->
 
 <label>
 عنوان العقار *
@@ -219,6 +232,8 @@ required
 placeholder="مثال: شقة للبيع في قنا">
 
 
+<!-- السعر -->
+
 <label>
 السعر *
 </label>
@@ -230,11 +245,15 @@ required
 placeholder="500000">
 
 
+<!-- المدينة -->
+
 <label>
 المدينة *
 </label>
 
-<select id="location" required>
+<select
+id="location"
+required>
 
 <option value="">
 اختر المدينة
@@ -251,6 +270,8 @@ placeholder="500000">
 </select>
 
 
+<!-- الوصف -->
+
 <label>
 الوصف
 </label>
@@ -260,228 +281,7 @@ id="description"
 placeholder="وصف العقار"></textarea>
 
 
-<label>
-نوع العقار *
-</label>
-
-<select id="type" required>
-
-<option value="">
-اختر نوع العقار
-</option>
-
-<option value="شقة">
-شقة
-</option>
-
-<option value="فيلا">
-فيلا
-</option>
-
-<option value="بيت">
-بيت
-</option>
-
-<option value="أرض">
-أرض
-</option>
-
-<option value="محل">
-محل
-</option>
-
-<option value="مكتب">
-مكتب
-</option>
-
-</select>
-
+<!-- نوع العقار -->
 
 <label>
-نوع العملية *
-</label>
-
-<select id="operation" required>
-
-<option value="">
-اختر نوع العملية
-</option>
-
-<option value="بيع">
-بيع
-</option>
-
-<option value="إيجار">
-إيجار
-</option>
-
-</select>
-
-
-<label>
-حالة العقار
-</label>
-
-<select id="status">
-
-<option value="للبيع">
-للبيع
-</option>
-
-<option value="تم البيع">
-تم البيع
-</option>
-
-<option value="للإيجار">
-للإيجار
-</option>
-
-<option value="تم الإيجار">
-تم الإيجار
-</option>
-
-</select>
-
-
-<label>
-عدد الغرف
-</label>
-
-<input
-id="rooms"
-type="number"
-value="0">
-
-
-<label>
-المساحة
-</label>
-
-<input
-id="area"
-type="number"
-value="0">
-
-
-<label>
-صورة العقار
-</label>
-
-<input
-id="imageFile"
-type="file"
-accept="image/*">
-
-
-<div
-id="imagePreview"
-class="preview">
-
-<img
-id="previewImage"
-src=""
-alt="معاينة الصورة">
-
-</div>
-
-
-<button
-id="saveButton"
-type="submit">
-
-💾 حفظ العقار
-
-</button>
-
-</form>
-
-</div>
-
-</div>
-
-
-<script src="https://cdn.jsdelivr.net/npm/appwrite@20.0.0"></script>
-
-<script>
-
-// ==========================================
-// إعداد Appwrite
-// ==========================================
-
-const client =
-    new Appwrite.Client();
-
-client
-    .setEndpoint(
-        "https://cloud.appwrite.io/v1"
-    )
-    .setProject(
-        "6a867fed002fef251e71"
-    );
-
-
-const account =
-    new Appwrite.Account(client);
-
-const tablesDB =
-    new Appwrite.TablesDB(client);
-
-const storage =
-    new Appwrite.Storage(client);
-
-
-// ==========================================
-// بيانات الحساب المسموح له
-// ==========================================
-
-const ALLOWED_USER_ID =
-    "6a8891660001ee10a062";
-
-const ALLOWED_EMAIL =
-    "montaser203020@gmail.com";
-
-
-// ==========================================
-// IDs
-// ==========================================
-
-const DATABASE_ID =
-    "6a86824200363a615936";
-
-const TABLE_ID =
-    "properties";
-
-const BUCKET_ID =
-    "6a87a91f0030b092e1d9";
-
-
-// ==========================================
-// عناصر الصفحة
-// ==========================================
-
-const loginBox =
-    document.getElementById("loginBox");
-
-const adminBox =
-    document.getElementById("adminBox");
-
-const loginForm =
-    document.getElementById("loginForm");
-
-const loginButton =
-    document.getElementById("loginButton");
-
-const loginMessage =
-    document.getElementById("loginMessage");
-
-const logoutButton =
-    document.getElementById("logoutButton");
-
-const form =
-    document.getElementById("propertyForm");
-
-const message =
-    document.getElementById("message");
-
-const saveButton =
-   
+نوع العق
