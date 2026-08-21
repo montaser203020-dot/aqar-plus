@@ -8,7 +8,7 @@
 <meta name="viewport"
       content="width=device-width, initial-scale=1.0">
 
-<title>عقار بلس - إضافة عقار</title>
+<title>عقار بلس - لوحة التحكم</title>
 
 <style>
 
@@ -57,6 +57,7 @@ textarea {
     border-radius: 10px;
     font-family: inherit;
     font-size: 15px;
+    box-sizing: border-box;
 }
 
 textarea {
@@ -82,7 +83,20 @@ button:disabled {
     cursor: not-allowed;
 }
 
-#message {
+.logout {
+    background: #c0392b;
+}
+
+#loginBox {
+    display: block;
+}
+
+#adminBox {
+    display: none;
+}
+
+#message,
+#loginMessage {
     margin-top: 15px;
     padding: 12px;
     border-radius: 10px;
@@ -111,21 +125,88 @@ button:disabled {
 
 <div class="container">
 
-<div class="box">
+<!-- ========================= -->
+<!-- تسجيل الدخول -->
+<!-- ========================= -->
+
+<div class="box" id="loginBox">
+
+<h1>
+🔐 عقار بلس
+</h1>
+
+<p>
+تسجيل الدخول إلى لوحة التحكم
+</p>
+
+<div id="loginMessage"></div>
+
+<form id="loginForm">
+
+<label>
+البريد الإلكتروني
+</label>
+
+<input
+id="loginEmail"
+type="email"
+value="montaser203020@gmail.com"
+readonly>
+
+<label>
+كلمة المرور
+</label>
+
+<input
+id="loginPassword"
+type="password"
+required
+placeholder="اكتب كلمة المرور">
+
+<button
+id="loginButton"
+type="submit">
+
+🔐 تسجيل الدخول
+
+</button>
+
+</form>
+
+</div>
+
+
+<!-- ========================= -->
+<!-- لوحة التحكم -->
+<!-- ========================= -->
+
+<div class="box" id="adminBox">
 
 <h1>
 🏠 عقار بلس
 </h1>
 
 <p>
-إضافة عقار جديد
+لوحة التحكم الخاصة بك
 </p>
+
+<button
+class="logout"
+id="logoutButton"
+type="button">
+
+🚪 تسجيل الخروج
+
+</button>
+
+<hr style="margin:25px 0;border:0;border-top:1px solid #e0eff1;">
+
 
 <div id="message"></div>
 
+
 <form id="propertyForm">
 
-<!-- عنوان العقار -->
 
 <label>
 عنوان العقار *
@@ -138,8 +219,6 @@ required
 placeholder="مثال: شقة للبيع في قنا">
 
 
-<!-- السعر -->
-
 <label>
 السعر *
 </label>
@@ -150,8 +229,6 @@ type="number"
 required
 placeholder="500000">
 
-
-<!-- المدينة -->
 
 <label>
 المدينة *
@@ -174,8 +251,6 @@ placeholder="500000">
 </select>
 
 
-<!-- الوصف -->
-
 <label>
 الوصف
 </label>
@@ -184,8 +259,6 @@ placeholder="500000">
 id="description"
 placeholder="وصف العقار"></textarea>
 
-
-<!-- نوع العقار -->
 
 <label>
 نوع العقار *
@@ -224,8 +297,6 @@ placeholder="وصف العقار"></textarea>
 </select>
 
 
-<!-- نوع العملية -->
-
 <label>
 نوع العملية *
 </label>
@@ -247,7 +318,30 @@ placeholder="وصف العقار"></textarea>
 </select>
 
 
-<!-- الغرف -->
+<label>
+حالة العقار
+</label>
+
+<select id="status">
+
+<option value="للبيع">
+للبيع
+</option>
+
+<option value="تم البيع">
+تم البيع
+</option>
+
+<option value="للإيجار">
+للإيجار
+</option>
+
+<option value="تم الإيجار">
+تم الإيجار
+</option>
+
+</select>
+
 
 <label>
 عدد الغرف
@@ -259,8 +353,6 @@ type="number"
 value="0">
 
 
-<!-- المساحة -->
-
 <label>
 المساحة
 </label>
@@ -270,8 +362,6 @@ id="area"
 type="number"
 value="0">
 
-
-<!-- صورة العقار -->
 
 <label>
 صورة العقار
@@ -295,8 +385,6 @@ alt="معاينة الصورة">
 </div>
 
 
-<!-- زر الحفظ -->
-
 <button
 id="saveButton"
 type="submit">
@@ -316,7 +404,6 @@ type="submit">
 
 <script>
 
-
 // ==========================================
 // إعداد Appwrite
 // ==========================================
@@ -333,12 +420,25 @@ client
     );
 
 
+const account =
+    new Appwrite.Account(client);
+
 const tablesDB =
     new Appwrite.TablesDB(client);
 
-
 const storage =
     new Appwrite.Storage(client);
+
+
+// ==========================================
+// بيانات الحساب المسموح له
+// ==========================================
+
+const ALLOWED_USER_ID =
+    "6a8891660001ee10a062";
+
+const ALLOWED_EMAIL =
+    "montaser203020@gmail.com";
 
 
 // ==========================================
@@ -359,372 +459,29 @@ const BUCKET_ID =
 // عناصر الصفحة
 // ==========================================
 
+const loginBox =
+    document.getElementById("loginBox");
+
+const adminBox =
+    document.getElementById("adminBox");
+
+const loginForm =
+    document.getElementById("loginForm");
+
+const loginButton =
+    document.getElementById("loginButton");
+
+const loginMessage =
+    document.getElementById("loginMessage");
+
+const logoutButton =
+    document.getElementById("logoutButton");
+
 const form =
-    document.getElementById(
-        "propertyForm"
-    );
+    document.getElementById("propertyForm");
 
 const message =
-    document.getElementById(
-        "message"
-    );
+    document.getElementById("message");
 
 const saveButton =
-    document.getElementById(
-        "saveButton"
-    );
-
-const imageFile =
-    document.getElementById(
-        "imageFile"
-    );
-
-const imagePreview =
-    document.getElementById(
-        "imagePreview"
-    );
-
-const previewImage =
-    document.getElementById(
-        "previewImage"
-    );
-
-
-// ==========================================
-// معاينة الصورة
-// ==========================================
-
-imageFile.addEventListener(
-    "change",
-    function() {
-
-        const file =
-            this.files[0];
-
-        if (!file) {
-
-            imagePreview.style.display =
-                "none";
-
-            return;
-
-        }
-
-        const imageURL =
-            URL.createObjectURL(file);
-
-        previewImage.src =
-            imageURL;
-
-        imagePreview.style.display =
-            "block";
-
-    }
-);
-
-
-// ==========================================
-// حفظ العقار
-// ==========================================
-
-form.addEventListener(
-    "submit",
-    async function(event) {
-
-        event.preventDefault();
-
-        saveButton.disabled = true;
-
-        try {
-
-            message.style.display =
-                "block";
-
-            message.style.background =
-                "#fff0dc";
-
-            message.style.color =
-                "#c27420";
-
-            message.innerText =
-                "⏳ جاري تجهيز العقار...";
-
-
-            // ==================================
-            // بيانات العقار
-            // ==================================
-
-            const title =
-                document
-                .getElementById("title")
-                .value
-                .trim();
-
-
-            const price =
-                Number(
-                    document
-                    .getElementById("price")
-                    .value || 0
-                );
-
-
-            const location =
-                document
-                .getElementById("location")
-                .value;
-
-
-            const description =
-                document
-                .getElementById("description")
-                .value
-                .trim();
-
-
-            const propertyType =
-                document
-                .getElementById("type")
-                .value;
-
-
-            const operation =
-                document
-                .getElementById("operation")
-                .value;
-
-
-            const rooms =
-                Number(
-                    document
-                    .getElementById("rooms")
-                    .value || 0
-                );
-
-
-            const area =
-                Number(
-                    document
-                    .getElementById("area")
-                    .value || 0
-                );
-
-
-            // ==================================
-            // التحقق
-            // ==================================
-
-            if (!title) {
-
-                throw new Error(
-                    "اكتب عنوان العقار"
-                );
-
-            }
-
-
-            if (!location) {
-
-                throw new Error(
-                    "اختر المدينة"
-                );
-
-            }
-
-
-            if (
-                location !== "قنا" &&
-                location !== "الغردقة"
-            ) {
-
-                throw new Error(
-                    "المدينة يجب أن تكون قنا أو الغردقة"
-                );
-
-            }
-
-
-            if (!propertyType) {
-
-                throw new Error(
-                    "اختر نوع العقار"
-                );
-
-            }
-
-
-            if (!operation) {
-
-                throw new Error(
-                    "اختر نوع العملية"
-                );
-
-            }
-
-
-            // ==================================
-            // رفع الصورة
-            // ==================================
-
-            let imageURL = "";
-
-            const file =
-                imageFile.files[0];
-
-
-            if (file) {
-
-                message.innerText =
-                    "⏳ جاري رفع صورة العقار...";
-
-
-                const uploadedFile =
-                    await storage.createFile({
-
-                        bucketId:
-                            BUCKET_ID,
-
-                        fileId:
-                            Appwrite.ID.unique(),
-
-                        file:
-                            file
-
-                    });
-
-
-                imageURL =
-                    "https://cloud.appwrite.io/v1/storage/buckets/" +
-                    BUCKET_ID +
-                    "/files/" +
-                    uploadedFile.$id +
-                    "/view?project=" +
-                    "6a867fed002fef251e71";
-
-            }
-
-
-            // ==================================
-            // حفظ العقار
-            // ==================================
-
-            message.innerText =
-                "⏳ جاري حفظ بيانات العقار...";
-
-
-            const data = {
-
-                title:
-                    title,
-
-                price:
-                    price,
-
-                location:
-                    location,
-
-                description:
-                    description,
-
-                property_type:
-                    propertyType,
-
-                rooms:
-                    rooms,
-
-                area:
-                    area,
-
-                image:
-                    imageURL,
-
-                Operation:
-                    operation
-
-            };
-
-
-            const result =
-                await tablesDB.createRow({
-
-                    databaseId:
-                        DATABASE_ID,
-
-                    tableId:
-                        TABLE_ID,
-
-                    rowId:
-                        Appwrite.ID.unique(),
-
-                    data:
-                        data
-
-                });
-
-
-            console.log(
-                "تم حفظ العقار:",
-                result
-            );
-
-
-            // ==================================
-            // نجاح
-            // ==================================
-
-            message.style.background =
-                "#e3f7eb";
-
-            message.style.color =
-                "#23804b";
-
-            message.innerText =
-                "✅ تم حفظ العقار والصورة بنجاح";
-
-
-            form.reset();
-
-            imagePreview.style.display =
-                "none";
-
-            previewImage.src = "";
-
-
-        }
-
-        catch(error) {
-
-            console.error(
-                "Appwrite Error:",
-                error
-            );
-
-
-            message.style.background =
-                "#ffe6e6";
-
-            message.style.color =
-                "#c0392b";
-
-
-            message.innerText =
-                "❌ حدث خطأ: " +
-                error.message;
-
-        }
-
-        finally {
-
-            saveButton.disabled =
-                false;
-
-        }
-
-    }
-);
-
-</script>
-
-</body>
-
-</html>
+   
