@@ -1,3 +1,7 @@
+// ==========================================
+// عقار بلس - Appwrite
+// ==========================================
+
 const client = new Appwrite.Client();
 
 client
@@ -18,46 +22,12 @@ const WHATSAPP_NUMBER = "201095663300";
 // ==========================================
 
 function escapeHTML(value) {
-
     return String(value ?? "")
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
-
-}
-
-
-// ==========================================
-// توحيد أسماء المدن
-// ==========================================
-
-function normalizeCity(value) {
-
-    return String(value ?? "")
-        .trim()
-        .toLowerCase()
-        .replace(/أ/g, "ا")
-        .replace(/إ/g, "ا")
-        .replace(/آ/g, "ا")
-        .replace(/ة/g, "ه")
-        .replace(/\s+/g, "");
-
-}
-
-
-// ==========================================
-// توحيد النصوص العادية
-// ==========================================
-
-function normalizeText(value) {
-
-    return String(value ?? "")
-        .trim()
-        .toLowerCase()
-        .replace(/\s+/g, "");
-
 }
 
 
@@ -65,15 +35,11 @@ function normalizeText(value) {
 // واتساب
 // ==========================================
 
-function openWhatsApp(propertyTitle = "") {
+function openWhatsApp(title = "") {
 
     const message =
         "مرحبًا، أريد الاستفسار عن العقار" +
-        (
-            propertyTitle
-                ? " \"" + propertyTitle + "\""
-                : ""
-        ) +
+        (title ? ' "' + title + '"' : "") +
         " الموجود على عقار بلس.";
 
     const url =
@@ -82,12 +48,7 @@ function openWhatsApp(propertyTitle = "") {
         "&text=" +
         encodeURIComponent(message);
 
-    window.open(
-        url,
-        "_blank",
-        "noopener,noreferrer"
-    );
-
+    window.open(url, "_blank", "noopener,noreferrer");
 }
 
 
@@ -116,10 +77,10 @@ function createPropertyCard(property) {
         property.Operation || "غير محدد";
 
     const rooms =
-        property.rooms || 0;
+        Number(property.rooms || 0);
 
     const area =
-        property.area || 0;
+        Number(property.area || 0);
 
     const image =
         property.image || "";
@@ -127,12 +88,10 @@ function createPropertyCard(property) {
     const propertyId =
         property.$id || "";
 
-
     const card =
         document.createElement("div");
 
     card.className = "property";
-
 
     card.innerHTML = `
 
@@ -140,26 +99,24 @@ function createPropertyCard(property) {
 
             ${
                 image
-                ?
-                `
-                <img
-                    src="${escapeHTML(image)}"
-                    alt="${escapeHTML(title)}"
-                >
-                `
-                :
-                "🏠"
+                    ? `
+                        <img
+                            src="${escapeHTML(image)}"
+                            alt="${escapeHTML(title)}"
+                            loading="lazy"
+                            onerror="this.style.display='none'; this.parentElement.innerHTML='🏠';"
+                        >
+                    `
+                    : "🏠"
             }
 
         </div>
-
 
         <div class="property-content">
 
             <h3>
                 ${escapeHTML(title)}
             </h3>
-
 
             <div class="info">
 
@@ -188,7 +145,6 @@ function createPropertyCard(property) {
 
             </div>
 
-
             <div class="price">
 
                 💰
@@ -197,77 +153,62 @@ function createPropertyCard(property) {
 
             </div>
 
-
             ${
                 description
-                ?
-                `
-                <div class="description">
-
-                    ${escapeHTML(description)}
-
-                </div>
-                `
-                :
-                ""
+                    ? `
+                        <div class="description">
+                            ${escapeHTML(description)}
+                        </div>
+                    `
+                    : ""
             }
-
 
             <span class="status">
 
                 ${
-                    normalizeText(operation) === normalizeText("إيجار")
-                    ?
-                    "🔑 متاح للإيجار"
-                    :
-                    "🟢 متاح للبيع"
+                    operation === "إيجار"
+                        ? "🔑 متاح للإيجار"
+                        : "🟢 متاح للبيع"
                 }
 
             </span>
-
 
             <div class="actions">
 
                 <button
                     class="details"
                     type="button">
-
                     🔎 تفاصيل
-
                 </button>
-
 
                 <button
                     class="call-property"
                     type="button">
-
                     📞 اتصال
-
                 </button>
-
 
                 <button
                     class="whatsapp-property"
                     type="button">
-
                     💬 واتساب
-
                 </button>
 
             </div>
 
         </div>
-
     `;
 
 
-    // تفاصيل العقار
+    // تفاصيل
 
-    card
-        .querySelector(".details")
-        .addEventListener(
+    const detailsButton =
+        card.querySelector(".details");
+
+    if (detailsButton) {
+
+        detailsButton.addEventListener(
             "click",
-            function() {
+            function () {
 
                 if (!propertyId) {
 
@@ -276,7 +217,6 @@ function createPropertyCard(property) {
                     );
 
                     return;
-
                 }
 
                 window.location.href =
@@ -286,14 +226,19 @@ function createPropertyCard(property) {
             }
         );
 
+    }
 
-    // الاتصال
 
-    card
-        .querySelector(".call-property")
-        .addEventListener(
+    // اتصال
+
+    const callButton =
+        card.querySelector(".call-property");
+
+    if (callButton) {
+
+        callButton.addEventListener(
             "click",
-            function() {
+            function () {
 
                 window.location.href =
                     "tel:" + PHONE_NUMBER;
@@ -301,23 +246,31 @@ function createPropertyCard(property) {
             }
         );
 
+    }
+
 
     // واتساب
 
-    card
-        .querySelector(".whatsapp-property")
-        .addEventListener(
+    const whatsappButton =
+        card.querySelector(
+            ".whatsapp-property"
+        );
+
+    if (whatsappButton) {
+
+        whatsappButton.addEventListener(
             "click",
-            function() {
+            function () {
 
                 openWhatsApp(title);
 
             }
         );
 
+    }
+
 
     return card;
-
 }
 
 
@@ -342,7 +295,6 @@ function renderProperties(
         document.querySelector(
             "#sale .title h2"
         );
-
 
     const subtitleElement =
         document.querySelector(
@@ -370,7 +322,7 @@ function renderProperties(
 
 
     if (
-        !properties ||
+        !Array.isArray(properties) ||
         properties.length === 0
     ) {
 
@@ -378,26 +330,23 @@ function renderProperties(
 
             <div class="empty">
 
-                🔍 لا توجد عقارات في هذا البحث
+                🔍 لا توجد عقارات في هذا القسم
 
             </div>
 
         `;
 
         return;
-
     }
 
 
-    properties.forEach(
-        property => {
+    properties.forEach(function(property) {
 
-            container.appendChild(
-                createPropertyCard(property)
-            );
+        container.appendChild(
+            createPropertyCard(property)
+        );
 
-        }
-    );
+    });
 
 
     const saleSection =
@@ -416,7 +365,7 @@ function renderProperties(
 
 
 // ==========================================
-// جلب العقارات
+// جلب كل العقارات
 // ==========================================
 
 async function getAllProperties() {
@@ -443,8 +392,13 @@ async function getAllProperties() {
         });
 
 
-    return result.rows || [];
+    console.log(
+        "العقارات القادمة من Appwrite:",
+        result.rows
+    );
 
+
+    return result.rows || [];
 }
 
 
@@ -465,9 +419,364 @@ async function showAllProperties() {
     container.innerHTML = `
 
         <div class="loading">
-
             ⏳ جاري تحميل كل العقارات...
+        </div>
 
+    `;
+
+
+    try {
+
+        const properties =
+            await getAllProperties();
+
+        renderProperties(
+            properties,
+            "كل العقارات"
+        );
+
+    }
+
+    catch(error) {
+
+        showError(
+            container,
+            error
+        );
+
+    }
+
+}
+
+
+// ==========================================
+// عقارات البيع
+// ==========================================
+
+async function showSale() {
+
+    const container =
+        document.getElementById(
+            "propertiesContainer"
+        );
+
+    if (!container) return;
+
+
+    container.innerHTML = `
+
+        <div class="loading">
+            ⏳ جاري تحميل عقارات البيع...
+        </div>
+
+    `;
+
+
+    try {
+
+        const properties =
+            await getAllProperties();
+
+
+        const saleProperties =
+            properties.filter(function(property) {
+
+                return String(
+                    property.Operation ?? ""
+                ).trim() === "بيع";
+
+            });
+
+
+        renderProperties(
+            saleProperties,
+            "عقارات للبيع"
+        );
+
+    }
+
+    catch(error) {
+
+        showError(
+            container,
+            error
+        );
+
+    }
+
+}
+
+
+// ==========================================
+// عقارات الإيجار
+// ==========================================
+
+async function showRent() {
+
+    const container =
+        document.getElementById(
+            "propertiesContainer"
+        );
+
+    if (!container) return;
+
+
+    container.innerHTML = `
+
+        <div class="loading">
+            ⏳ جاري تحميل عقارات الإيجار...
+        </div>
+
+    `;
+
+
+    try {
+
+        const properties =
+            await getAllProperties();
+
+
+        const rentProperties =
+            properties.filter(function(property) {
+
+                return String(
+                    property.Operation ?? ""
+                ).trim() === "إيجار";
+
+            });
+
+
+        renderProperties(
+            rentProperties,
+            "عقارات للإيجار"
+        );
+
+    }
+
+    catch(error) {
+
+        showError(
+            container,
+            error
+        );
+
+    }
+
+}
+
+
+// ==========================================
+// البحث
+// ==========================================
+
+async function searchProperties() {
+
+    const governorateElement =
+        document.getElementById(
+            "governorate"
+        );
+
+    const propertyTypeElement =
+        document.getElementById(
+            "propertyType"
+        );
+
+    const operationElement =
+        document.getElementById(
+            "operation"
+        );
+
+    const container =
+        document.getElementById(
+            "propertiesContainer"
+        );
+
+
+    if (!container) return;
+
+
+    const governorate =
+        governorateElement
+            ? governorateElement.value.trim()
+            : "";
+
+    const propertyType =
+        propertyTypeElement
+            ? propertyTypeElement.value.trim()
+            : "";
+
+    const operation =
+        operationElement
+            ? operationElement.value.trim()
+            : "";
+
+
+    container.innerHTML = `
+
+        <div class="loading">
+            ⏳ جاري البحث...
+        </div>
+
+    `;
+
+
+    try {
+
+        let properties =
+            await getAllProperties();
+
+
+        // المدينة
+
+        if (governorate) {
+
+            properties =
+                properties.filter(
+                    function(property) {
+
+                        const location =
+                            String(
+                                property.location ?? ""
+                            ).trim();
+
+                        return location ===
+                            governorate;
+
+                    }
+                );
+
+        }
+
+
+        // نوع العقار
+
+        if (propertyType) {
+
+            properties =
+                properties.filter(
+                    function(property) {
+
+                        const type =
+                            String(
+                                property.property_type ?? ""
+                            ).trim();
+
+                        return type ===
+                            propertyType;
+
+                    }
+                );
+
+        }
+
+
+        // نوع العملية
+
+        if (operation) {
+
+            properties =
+                properties.filter(
+                    function(property) {
+
+                        const propertyOperation =
+                            String(
+                                property.Operation ?? ""
+                            ).trim();
+
+                        return propertyOperation ===
+                            operation;
+
+                    }
+                );
+
+        }
+
+
+        let resultTitle =
+            "نتائج البحث";
+
+
+        if (governorate) {
+
+            resultTitle =
+                "عقارات " +
+                governorate;
+
+        }
+
+
+        renderProperties(
+            properties,
+            resultTitle
+        );
+
+    }
+
+    catch(error) {
+
+        showError(
+            container,
+            error
+        );
+
+    }
+
+}
+
+
+// ==========================================
+// عرض الخطأ
+// ==========================================
+
+function showError(
+    container,
+    error
+) {
+
+    console.error(
+        "Appwrite Error:",
+        error
+    );
+
+
+    container.innerHTML = `
+
+        <div class="error">
+
+            ❌ حدث خطأ أثناء تحميل العقارات
+
+            <br><br>
+
+            ${escapeHTML(
+                error?.message ||
+                "خطأ غير معروف"
+            )}
+
+        </div>
+
+    `;
+
+}
+
+
+// ==========================================
+// تحميل الموقع
+// ==========================================
+
+async function loadProperties() {
+
+    const container =
+        document.getElementById(
+            "propertiesContainer"
+        );
+
+    if (!container) return;
+
+
+    container.innerHTML = `
+
+        <div class="loading">
+            ⏳ جاري تحميل العقارات...
         </div>
 
     `;
@@ -499,104 +808,14 @@ async function showAllProperties() {
 
 
 // ==========================================
-// للبيع
+// التشغيل
 // ==========================================
 
-async function showSale() {
+document.addEventListener(
+    "DOMContentLoaded",
+    function() {
 
-    const container =
-        document.getElementById(
-            "propertiesContainer"
-        );
-
-    if (!container) return;
-
-
-    container.innerHTML = `
-
-        <div class="loading">
-
-            ⏳ جاري تحميل عقارات البيع...
-
-        </div>
-
-    `;
-
-
-    try {
-
-        const properties =
-            await getAllProperties();
-
-
-        const saleProperties =
-            properties.filter(
-                property => {
-
-                    return normalizeText(
-                        property.Operation
-                    ) === normalizeText("بيع");
-
-                }
-            );
-
-
-        renderProperties(
-            saleProperties,
-            "عقارات للبيع"
-        );
+        loadProperties();
 
     }
-
-    catch(error) {
-
-        showError(
-            container,
-            error
-        );
-
-    }
-
-}
-
-
-// ==========================================
-// للإيجار
-// ==========================================
-
-async function showRent() {
-
-    const container =
-        document.getElementById(
-            "propertiesContainer"
-        );
-
-    if (!container) return;
-
-
-    container.innerHTML = `
-
-        <div class="loading">
-
-            ⏳ جاري تحميل عقارات الإيجار...
-
-        </div>
-
-    `;
-
-
-    try {
-
-        const properties =
-            await getAllProperties();
-
-
-        const rentProperties =
-            properties.filter(
-                property => {
-
-                    return normalizeText(
-                        property.Operation
-                    ) === normalizeText("إيجار");
-
-               
+);
