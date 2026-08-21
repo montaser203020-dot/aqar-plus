@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
+
+<title>عقار بلس | تفاصيل العقار</title>
+
+<style>
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, Tahoma, sans-serif;
+    background: #f4fbfc;
+    color: #173f48;
+}
+
+header {
+    background: white;
+    padding: 16px 5%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 15px rgba(0,80,90,.08);
+}
+
+.logo {
+    font-size: 27px;
+    font-weight: bold;
+    color: #07838f;
+}
+
+.back {
+    text-decoration: none;
+    background: #07838f;
+    color: white;
+    padding: 10px 18px;
+    border-radius: 10px;
+    font-weight: bold;
+}
+
+.container {
+    max-width: 1000px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.card {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 6px 25px rgba(0,80,90,.10);
+}
+
+.image {
+    width: 100%;
+    height: 450px;
+    background: linear-gradient(
+        135deg,
+        #c9eef2,
+        #eaf9fa
+    );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 100px;
+    overflow: hidden;
+}
+
+.image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.content {
+    padding: 30px;
+}
+
+h1 {
+    color: #07838f;
+    margin-bottom: 20px;
+    font-size: 30px;
+}
+
+.info {
+    line-height: 2.1;
+    color: #526f75;
+    font-size: 16px;
+}
+
+.price {
+    color: #07838f;
+    font-size: 26px;
+    font-weight: bold;
+    margin: 20px 0;
+}
+
+.description {
+    margin-top: 20px;
+    padding: 18px;
+    background: #f4fbfc;
+    border-radius: 12px;
+    line-height: 1.9;
+    color: #617f85;
+}
+
+.status {
+    display: inline-block;
+    margin-top: 18px;
+    padding: 8px 15px;
+    border-radius: 20px;
+    background: #e3f7eb;
+    color: #23804b;
+    font-weight: bold;
+}
+
+.actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 25px;
+}
+
+.actions a {
+    text-decoration: none;
+    text-align: center;
+    padding: 15px;
+    border-radius: 10px;
+    font-weight: bold;
+}
+
+.phone {
+    background: #07838f;
+    color: white;
+}
+
+.whatsapp {
+    background: #25a856;
+    color: white;
+}
+
+.loading,
+.error {
+    text-align: center;
+    padding: 50px;
+}
+
+.loading {
+    color: #07838f;
+}
+
+.error {
+    color: #c0392b;
+}
+
+@media(max-width:600px) {
+
+    .image {
+        height: 280px;
+    }
+
+    .content {
+        padding: 20px;
+    }
+
+    h1 {
+        font-size: 24px;
+    }
+
+    .actions {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+
+    <div class="logo">
+        🏠 عقار بلس
+    </div>
+
+    <a href="index.html" class="back">
+        ← العودة للعقارات
+    </a>
+
+</header>
+
+
+<div class="container">
+
+    <div id="propertyContainer">
+
+        <div class="loading">
+            ⏳ جاري تحميل تفاصيل العقار...
+        </div>
+
+    </div>
+
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/appwrite@20.0.0"></script>
+
+<script>
+
+const client = new Appwrite.Client();
+
+client
+    .setEndpoint("https://cloud.appwrite.io/v1")
+    .setProject("6a867fed002fef251e71");
+
+
+const tablesDB =
+    new Appwrite.TablesDB(client);
+
+
+const DATABASE_ID =
+    "6a86824200363a615936";
+
+const TABLE_ID =
+    "properties";
+
+
+const PHONE_NUMBER =
+    "01095663300";
+
+const WHATSAPP_NUMBER =
+    "201095663300";
+
+
+function escapeHTML(value) {
+
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
+}
+
+
+function openWhatsApp(title) {
+
+    const message =
+        "مرحبًا، أريد الاستفسار عن العقار \"" +
+        title +
+        "\" الموجود على عقار بلس.";
+
+    const url =
+        "https://api.whatsapp.com/send?phone=" +
+        WHATSAPP_NUMBER +
+        "&text=" +
+        encodeURIComponent(message);
+
+    window.open(
+        url,
+        "_blank",
+        "noopener,noreferrer"
+    );
+
+}
+
+
+async function loadProperty() {
+
+    const container =
+        document.getElementById(
+            "propertyContainer"
+        );
+
+
+    const params =
+        new URLSearchParams(
+            window.location.search
+        );
+
+
+    const propertyId =
+        params.get("id");
+
+
+    if (!propertyId) {
+
+        container.innerHTML = `
+
+            <div class="error">
+
+                ❌ لم يتم تحديد العقار
+
+                <br><br>
+
+                <a href="index.html">
+                    العودة للصفحة الرئيسية
+                </a>
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    try {
+
+        const property =
+            await tablesDB.getRow({
+
+                databaseId:
+                    DATABASE_ID,
+
+                tableId:
+                    TABLE_ID,
+
+                rowId:
+                    propertyId
+
+            });
+
+
+        const title =
+            property.title ||
+            "عقار بدون عنوان";
+
+
+        const price =
+            Number(
+                property.price || 0
+            );
+
+
+        const location =
+            property.location ||
+            "غير محدد";
+
+
+        const description =
+            property.description ||
+            "لا يوجد وصف لهذا العقار.";
+
+
+        const propertyType =
+            property.property_type ||
+            "غير محدد";
+
+
+        const operation =
+            property.Operation ||
+            "غير محدد";
+
+
+        const rooms =
+            property.rooms || 0;
+
+
+        const area =
+            property.area || 0;
+
+
+        const image =
+            property.image || "";
+
+
+        container.innerHTML = `
+
+            <div class="card">
+
+                <div class="image">
+
+                    ${
+                        image
+                        ?
+                        `
+                        <img
+                            src="${escapeHTML(image)}"
+                            alt="${escapeHTML(title)}"
+                        >
+                        `
+                        :
+                        "🏠"
+                    }
+
+                </div>
+
+
+                <div class="content">
+
+                    <h1>
+                        ${escapeHTML(title)}
+                    </h1>
+
+
+                    <div class="info">
+
+                        📍 الموقع:
+                        ${escapeHTML(location)}
+
+                        <br>
+
+                        🏠 نوع العقار:
+                        ${escapeHTML(propertyType)}
+
+                        <br>
+
+                        🔑 نوع العملية:
+                        ${escapeHTML(operation)}
+
+                        <br>
+
+                        🛏️ عدد الغرف:
+                        ${escapeHTML(rooms)}
+
+                        <br>
+
+                        📐 المساحة:
+                        ${escapeHTML(area)}
+                        متر
+
+                    </div>
+
+
+                    <div class="price">
+
+                        💰
+                        ${price.toLocaleString("ar-EG")}
+                        جنيه
+
+                    </div>
+
+
+                    <div class="description">
+
+                        <strong>
+                            📝 وصف العقار
+                        </strong>
+
+                        <br><br>
+
+                        ${escapeHTML(description)}
+
+                    </div>
+
+
+                    <span class="status">
+
+                        ${
+                            operation === "إيجار"
+                            ?
+                            "🔑 متاح للإيجار"
+                            :
+                            "🟢 متاح للبيع"
+                        }
+
+                    </span>
+
+
+                    <div class="actions">
+
+                        <a
+                            href="tel:${PHONE_NUMBER}"
+                            class="phone">
+
+                            📞 اتصال
+
+                        </a>
+
+
+                        <a
+                            href="#"
+                            class="whatsapp"
+                            id="whatsappButton">
+
+                            💬 واتساب
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        `;
+
+
+        document
+            .getElementById(
+                "whatsappButton"
+            )
+            .addEventListener(
+                "click",
+                function(event) {
+
+                    event.preventDefault();
+
+                    openWhatsApp(title);
+
+                }
+            );
+
+
+    }
+
+    catch(error) {
+
+        console.error(
+            "Appwrite Error:",
+            error
+        );
+
+
+        container.innerHTML = `
+
+            <div class="error">
+
+                ❌ حدث خطأ أثناء تحميل العقار
+
+                <br><br>
+
+                ${escapeHTML(
+                    error.message ||
+                    "خطأ غير معروف"
+                )}
+
+                <br><br>
+
+                <a href="index.html">
+                    ← العودة للصفحة الرئيسية
+                </a>
+
+            </div>
+
+        `;
+
+    }
+
+}
+
+
+document.addEventListener(
+    "DOMContentLoaded",
+    loadProperty
+);
+
+</script>
+
+</body>
+
+</html>

@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
+
+<title>عقار بلس | بيع وإيجار العقارات</title>
+
+<style>
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, Tahoma, sans-serif;
+    background: #f4fbfc;
+    color: #173f48;
+}
+
+header {
+    background: white;
+    padding: 16px 5%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    box-shadow: 0 2px 15px rgba(0,80,90,.08);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.logo {
+    font-size: 27px;
+    font-weight: bold;
+    color: #07838f;
+}
+
+nav {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+nav a {
+    text-decoration: none;
+    color: #315b63;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.hero {
+    text-align: center;
+    padding: 75px 20px;
+    background: linear-gradient(
+        180deg,
+        #d9f6f9,
+        #effbfc,
+        white
+    );
+}
+
+.hero h1 {
+    font-size: 42px;
+    color: #087f8c;
+    margin-bottom: 15px;
+}
+
+.hero p {
+    font-size: 19px;
+    color: #607d83;
+    margin-bottom: 35px;
+}
+
+.search-box {
+    max-width: 1100px;
+    margin: auto;
+    padding: 22px;
+    background: white;
+    border-radius: 18px;
+    box-shadow: 0 8px 30px rgba(0,80,90,.12);
+
+    display: grid;
+    grid-template-columns: repeat(4,1fr);
+    gap: 12px;
+}
+
+.search-box select,
+.search-box button {
+    min-height: 50px;
+    border-radius: 10px;
+    padding: 10px;
+    font-family: inherit;
+    font-size: 15px;
+}
+
+.search-box select {
+    border: 1px solid #c8e7eb;
+    background: white;
+    color: #315b63;
+}
+
+.search-box button {
+    border: none;
+    background: #07838f;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.search-box button:hover {
+    background: #066f79;
+}
+
+.section {
+    padding: 55px 6%;
+}
+
+.title {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.title h2 {
+    font-size: 30px;
+    margin-bottom: 8px;
+}
+
+.title p {
+    color: #718b90;
+}
+
+.categories {
+    max-width: 1150px;
+    margin: auto;
+
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    gap: 18px;
+}
+
+.category {
+    background: white;
+    padding: 30px 18px;
+    border-radius: 17px;
+    text-align: center;
+    box-shadow: 0 5px 20px rgba(0,80,90,.07);
+    cursor: pointer;
+    transition: .2s;
+}
+
+.category:hover {
+    transform: translateY(-4px);
+}
+
+.category-icon {
+    font-size: 45px;
+    margin-bottom: 12px;
+}
+
+.category h3 {
+    margin-bottom: 8px;
+}
+
+.category p {
+    color: #718b90;
+    font-size: 14px;
+}
+
+.properties {
+    max-width: 1150px;
+    margin: auto;
+
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    gap: 22px;
+}
+
+.property {
+    background: white;
+    border-radius: 17px;
+    overflow: hidden;
+    box-shadow: 0 5px 22px rgba(0,80,90,.08);
+}
+
+.property-image {
+    height: 210px;
+
+    background: linear-gradient(
+        135deg,
+        #c9eef2,
+        #eaf9fa
+    );
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 75px;
+    overflow: hidden;
+}
+
+.property-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.property-content {
+    padding: 20px;
+}
+
+.property h3 {
+    margin-bottom: 10px;
+    font-size: 20px;
+}
+
+.info {
+    color: #617f85;
+    line-height: 1.9;
+    font-size: 14px;
+}
+
+.description {
+    color: #718b90;
+    font-size: 14px;
+    line-height: 1.8;
+    margin-top: 8px;
+}
+
+.price {
+    color: #07838f;
+    font-size: 20px;
+    font-weight: bold;
+    margin: 12px 0;
+}
+
+.status {
+    display: inline-block;
+    padding: 7px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: bold;
+    background: #e3f7eb;
+    color: #23804b;
+}
+
+.actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin-top: 15px;
+}
+
+.details,
+.call-property,
+.whatsapp-property {
+    border: none;
+    border-radius: 9px;
+    padding: 11px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.details {
+    background: #07838f;
+    color: white;
+}
+
+.call-property {
+    background: #eef9fa;
+    color: #07838f;
+}
+
+.whatsapp-property {
+    background: #e5f8ec;
+    color: #25a856;
+}
+
+.loading {
+    text-align: center;
+    grid-column: 1/-1;
+    padding: 40px;
+    color: #07838f;
+    font-size: 18px;
+}
+
+.empty {
+    text-align: center;
+    grid-column: 1/-1;
+    padding: 40px;
+    color: #718b90;
+}
+
+.error {
+    text-align: center;
+    grid-column: 1/-1;
+    padding: 30px;
+    color: #c0392b;
+    background: #fff5f5;
+    border-radius: 12px;
+}
+
+.contact {
+    text-align: center;
+    background: #dff6f8;
+}
+
+.contact h2 {
+    margin-bottom: 10px;
+}
+
+.contact p {
+    color: #607d83;
+    margin-bottom: 20px;
+}
+
+.contact-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+}
+
+.contact-buttons a {
+    text-decoration: none;
+    color: white;
+    padding: 13px 25px;
+    border-radius: 10px;
+    font-weight: bold;
+}
+
+.phone {
+    background: #07838f;
+}
+
+.whatsapp {
+    background: #25a856;
+}
+
+footer {
+    background: white;
+    text-align: center;
+    padding: 25px;
+    color: #718b90;
+    border-top: 1px solid #e0eff1;
+}
+
+.admin-link {
+    display: block;
+    width: fit-content;
+    margin: 20px auto 0;
+    padding: 12px 20px;
+    background: #087f8c;
+    color: white;
+    text-decoration: none;
+    border-radius: 10px;
+    font-weight: bold;
+}
+
+@media(max-width:900px) {
+
+    header {
+        flex-direction: column;
+    }
+
+    .search-box {
+        grid-template-columns: repeat(2,1fr);
+    }
+
+    .categories {
+        grid-template-columns: repeat(3,1fr);
+    }
+
+    .properties {
+        grid-template-columns: repeat(2,1fr);
+    }
+
+}
+
+@media(max-width:600px) {
+
+    .hero {
+        padding: 55px 15px;
+    }
+
+    .hero h1 {
+        font-size: 30px;
+    }
+
+    .hero p {
+        font-size: 16px;
+    }
+
+    .search-box {
+        grid-template-columns: 1fr;
+    }
+
+    .categories,
+    .properties {
+        grid-template-columns: 1fr;
+    }
+
+    .actions {
+        grid-template-columns: 1fr;
+    }
+
+    nav {
+        gap: 10px;
+    }
+
+    .contact-buttons {
+        flex-direction: column;
+        max-width: 300px;
+        margin: auto;
+    }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+
+    <div class="logo">
+        🏠 عقار بلس
+    </div>
+
+    <nav>
+
+        <a href="#home">
+            الرئيسية
+        </a>
+
+        <a href="#propertiesContainer"
+           onclick="showSale(); return false;">
+            للبيع
+        </a>
+
+        <a href="#propertiesContainer"
+           onclick="showRent(); return false;">
+            للإيجار
+        </a>
+
+        <a href="#propertiesContainer"
+           onclick="showAllProperties(); return false;">
+            كل العقارات
+        </a>
+
+    </nav>
+
+</header>
+
+
+<section class="hero" id="home">
+
+    <h1>
+        ابحث عن عقارك بسهولة
+    </h1>
+
+    <p>
+        عقار بلس — بيع وإيجار العقارات في مكان واحد
+    </p>
+
+
+    <div class="search-box">
+
+
+        <!-- المدينة -->
+
+        <select id="governorate">
+
+            <option value="">
+                اختر المدينة
+            </option>
+
+            <option value="قنا">
+                قنا
+            </option>
+
+            <option value="الغردقة">
+                الغردقة
+            </option>
+
+        </select>
+
+
+        <!-- نوع العقار -->
+
+        <select id="propertyType">
+
+            <option value="">
+                نوع العقار
+            </option>
+
+            <option value="شقة">
+                شقة
+            </option>
+
+            <option value="فيلا">
+                فيلا
+            </option>
+
+            <option value="بيت">
+                بيت
+            </option>
+
+            <option value="أرض">
+                أرض
+            </option>
+
+            <option value="محل">
+                محل
+            </option>
+
+            <option value="مكتب">
+                مكتب
+            </option>
+
+        </select>
+
+
+        <!-- نوع العملية -->
+
+        <select id="operation">
+
+            <option value="">
+                نوع العملية
+            </option>
+
+            <option value="بيع">
+                بيع
+            </option>
+
+            <option value="إيجار">
+                إيجار
+            </option>
+
+        </select>
+
+
+        <button
+            type="button"
+            onclick="searchProperties()">
+
+            🔍 بحث
+
+        </button>
+
+    </div>
+
+</section>
+
+
+<section class="section">
+
+    <div class="title">
+
+        <h2>
+            تصفح العقارات
+        </h2>
+
+        <p>
+            اختر القسم الذي تبحث عنه
+        </p>
+
+    </div>
+
+
+    <div class="categories">
+
+
+        <div
+            class="category"
+            onclick="showSale()">
+
+            <div class="category-icon">
+                🏠
+            </div>
+
+            <h3>
+                عقارات للبيع
+            </h3>
+
+            <p>
+                عقارات معروضة للبيع
+            </p>
+
+        </div>
+
+
+        <div
+            class="category"
+            onclick="showRent()">
+
+            <div class="category-icon">
+                🔑
+            </div>
+
+            <h3>
+                عقارات للإيجار
+            </h3>
+
+            <p>
+                عقارات معروضة للإيجار
+            </p>
+
+        </div>
+
+
+        <div
+            class="category"
+            onclick="showAllProperties()">
+
+            <div class="category-icon">
+                🏘️
+            </div>
+
+            <h3>
+                كل العقارات
+            </h3>
+
+            <p>
+                عرض جميع العقارات
+            </p>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<section
+    class="section"
+    id="sale">
+
+    <div class="title">
+
+        <h2>
+            كل العقارات
+        </h2>
+
+        <p>
+            أحدث العقارات المضافة إلى عقار بلس
+        </p>
+
+    </div>
+
+
+    <div
+        class="properties"
+        id="propertiesContainer">
+
+        <div class="loading">
+
+            ⏳ جاري تحميل العقارات...
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<section class="section contact">
+
+    <h2>
+        هل تبحث عن عقار؟
+    </h2>
+
+    <p>
+        تواصل معنا وسنساعدك في العثور على العقار المناسب.
+    </p>
+
+
+    <div class="contact-buttons">
+
+
+        <a
+            href="tel:01095663300"
+            class="phone">
+
+            📞 اتصل بنا
+
+        </a>
+
+
+        <a
+            href="https://api.whatsapp.com/send?phone=201095663300&text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D8%8C%20%D8%A3%D8%B1%D9%8A%D8%AF%20%D8%A7%D9%84%D8%A7%D8%B3%D8%AA%D9%81%D8%B3%D8%A7%D8%B1%20%D8%B9%D9%86%20%D8%B9%D9%82%D8%A7%D8%B1%20%D9%85%D9%86%20%D8%B9%D9%82%D8%A7%D8%B1%20%D8%A8%D9%84%D8%B3"
+            class="whatsapp"
+            target="_blank"
+            rel="noopener noreferrer">
+
+            💬 واتساب
+
+        </a>
+
+    </div>
+
+</section>
+
+
+<footer>
+
+    © 2026 عقار بلس — جميع الحقوق محفوظة
+
+
+    <a
+        href="admin.html"
+        class="admin-link">
+
+        🔐 لوحة الإدارة
+
+    </a>
+
+</footer>
+
+
+<script src="https://cdn.jsdelivr.net/npm/appwrite@20.0.0"></script>
+
+<script src="script.js"></script>
+
+</body>
+
+</html>

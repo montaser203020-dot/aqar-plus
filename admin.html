@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
+
+<title>عقار بلس - إضافة عقار</title>
+
+<style>
+
+body {
+    font-family: Arial, Tahoma, sans-serif;
+    background: #f4fbfc;
+    margin: 0;
+    padding: 20px;
+    color: #173f48;
+}
+
+.container {
+    max-width: 700px;
+    margin: auto;
+}
+
+.box {
+    background: white;
+    padding: 25px;
+    border-radius: 18px;
+    box-shadow: 0 5px 25px rgba(0,80,90,.10);
+}
+
+h1 {
+    text-align: center;
+    color: #07838f;
+}
+
+p {
+    text-align: center;
+}
+
+label {
+    display: block;
+    margin-top: 15px;
+    margin-bottom: 7px;
+    font-weight: bold;
+}
+
+input,
+select,
+textarea {
+    width: 100%;
+    padding: 13px;
+    border: 1px solid #c8e7eb;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 15px;
+}
+
+textarea {
+    height: 120px;
+    resize: vertical;
+}
+
+button {
+    width: 100%;
+    margin-top: 20px;
+    padding: 15px;
+    border: none;
+    border-radius: 10px;
+    background: #07838f;
+    color: white;
+    font-size: 17px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button:disabled {
+    opacity: .6;
+    cursor: not-allowed;
+}
+
+#message {
+    margin-top: 15px;
+    padding: 12px;
+    border-radius: 10px;
+    text-align: center;
+    display: none;
+}
+
+.preview {
+    margin-top: 15px;
+    display: none;
+    text-align: center;
+}
+
+.preview img {
+    max-width: 100%;
+    max-height: 250px;
+    border-radius: 12px;
+    object-fit: cover;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="box">
+
+<h1>
+🏠 عقار بلس
+</h1>
+
+<p>
+إضافة عقار جديد
+</p>
+
+<div id="message"></div>
+
+<form id="propertyForm">
+
+<!-- عنوان العقار -->
+
+<label>
+عنوان العقار *
+</label>
+
+<input
+id="title"
+type="text"
+required
+placeholder="مثال: شقة للبيع في قنا">
+
+
+<!-- السعر -->
+
+<label>
+السعر *
+</label>
+
+<input
+id="price"
+type="number"
+required
+placeholder="500000">
+
+
+<!-- المدينة -->
+
+<label>
+المدينة *
+</label>
+
+<select id="location" required>
+
+<option value="">
+اختر المدينة
+</option>
+
+<option value="قنا">
+قنا
+</option>
+
+<option value="الغردقة">
+الغردقة
+</option>
+
+</select>
+
+
+<!-- الوصف -->
+
+<label>
+الوصف
+</label>
+
+<textarea
+id="description"
+placeholder="وصف العقار"></textarea>
+
+
+<!-- نوع العقار -->
+
+<label>
+نوع العقار *
+</label>
+
+<select id="type" required>
+
+<option value="">
+اختر نوع العقار
+</option>
+
+<option value="شقة">
+شقة
+</option>
+
+<option value="فيلا">
+فيلا
+</option>
+
+<option value="بيت">
+بيت
+</option>
+
+<option value="أرض">
+أرض
+</option>
+
+<option value="محل">
+محل
+</option>
+
+<option value="مكتب">
+مكتب
+</option>
+
+</select>
+
+
+<!-- نوع العملية -->
+
+<label>
+نوع العملية *
+</label>
+
+<select id="operation" required>
+
+<option value="">
+اختر نوع العملية
+</option>
+
+<option value="بيع">
+بيع
+</option>
+
+<option value="إيجار">
+إيجار
+</option>
+
+</select>
+
+
+<!-- الغرف -->
+
+<label>
+عدد الغرف
+</label>
+
+<input
+id="rooms"
+type="number"
+value="0">
+
+
+<!-- المساحة -->
+
+<label>
+المساحة
+</label>
+
+<input
+id="area"
+type="number"
+value="0">
+
+
+<!-- صورة العقار -->
+
+<label>
+صورة العقار
+</label>
+
+<input
+id="imageFile"
+type="file"
+accept="image/*">
+
+
+<div
+id="imagePreview"
+class="preview">
+
+<img
+id="previewImage"
+src=""
+alt="معاينة الصورة">
+
+</div>
+
+
+<!-- زر الحفظ -->
+
+<button
+id="saveButton"
+type="submit">
+
+💾 حفظ العقار
+
+</button>
+
+</form>
+
+</div>
+
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/appwrite@20.0.0"></script>
+
+<script>
+
+
+// ==========================================
+// إعداد Appwrite
+// ==========================================
+
+const client =
+    new Appwrite.Client();
+
+client
+    .setEndpoint(
+        "https://cloud.appwrite.io/v1"
+    )
+    .setProject(
+        "6a867fed002fef251e71"
+    );
+
+
+const tablesDB =
+    new Appwrite.TablesDB(client);
+
+
+const storage =
+    new Appwrite.Storage(client);
+
+
+// ==========================================
+// IDs
+// ==========================================
+
+const DATABASE_ID =
+    "6a86824200363a615936";
+
+const TABLE_ID =
+    "properties";
+
+const BUCKET_ID =
+    "6a87a91f0030b092e1d9";
+
+
+// ==========================================
+// عناصر الصفحة
+// ==========================================
+
+const form =
+    document.getElementById(
+        "propertyForm"
+    );
+
+const message =
+    document.getElementById(
+        "message"
+    );
+
+const saveButton =
+    document.getElementById(
+        "saveButton"
+    );
+
+const imageFile =
+    document.getElementById(
+        "imageFile"
+    );
+
+const imagePreview =
+    document.getElementById(
+        "imagePreview"
+    );
+
+const previewImage =
+    document.getElementById(
+        "previewImage"
+    );
+
+
+// ==========================================
+// معاينة الصورة
+// ==========================================
+
+imageFile.addEventListener(
+    "change",
+    function() {
+
+        const file =
+            this.files[0];
+
+        if (!file) {
+
+            imagePreview.style.display =
+                "none";
+
+            return;
+
+        }
+
+        const imageURL =
+            URL.createObjectURL(file);
+
+        previewImage.src =
+            imageURL;
+
+        imagePreview.style.display =
+            "block";
+
+    }
+);
+
+
+// ==========================================
+// حفظ العقار
+// ==========================================
+
+form.addEventListener(
+    "submit",
+    async function(event) {
+
+        event.preventDefault();
+
+        saveButton.disabled = true;
+
+        try {
+
+            message.style.display =
+                "block";
+
+            message.style.background =
+                "#fff0dc";
+
+            message.style.color =
+                "#c27420";
+
+            message.innerText =
+                "⏳ جاري تجهيز العقار...";
+
+
+            // ==================================
+            // بيانات العقار
+            // ==================================
+
+            const title =
+                document
+                .getElementById("title")
+                .value
+                .trim();
+
+
+            const price =
+                Number(
+                    document
+                    .getElementById("price")
+                    .value || 0
+                );
+
+
+            const location =
+                document
+                .getElementById("location")
+                .value;
+
+
+            const description =
+                document
+                .getElementById("description")
+                .value
+                .trim();
+
+
+            const propertyType =
+                document
+                .getElementById("type")
+                .value;
+
+
+            const operation =
+                document
+                .getElementById("operation")
+                .value;
+
+
+            const rooms =
+                Number(
+                    document
+                    .getElementById("rooms")
+                    .value || 0
+                );
+
+
+            const area =
+                Number(
+                    document
+                    .getElementById("area")
+                    .value || 0
+                );
+
+
+            // ==================================
+            // التحقق
+            // ==================================
+
+            if (!title) {
+
+                throw new Error(
+                    "اكتب عنوان العقار"
+                );
+
+            }
+
+
+            if (!location) {
+
+                throw new Error(
+                    "اختر المدينة"
+                );
+
+            }
+
+
+            if (
+                location !== "قنا" &&
+                location !== "الغردقة"
+            ) {
+
+                throw new Error(
+                    "المدينة يجب أن تكون قنا أو الغردقة"
+                );
+
+            }
+
+
+            if (!propertyType) {
+
+                throw new Error(
+                    "اختر نوع العقار"
+                );
+
+            }
+
+
+            if (!operation) {
+
+                throw new Error(
+                    "اختر نوع العملية"
+                );
+
+            }
+
+
+            // ==================================
+            // رفع الصورة
+            // ==================================
+
+            let imageURL = "";
+
+            const file =
+                imageFile.files[0];
+
+
+            if (file) {
+
+                message.innerText =
+                    "⏳ جاري رفع صورة العقار...";
+
+
+                const uploadedFile =
+                    await storage.createFile({
+
+                        bucketId:
+                            BUCKET_ID,
+
+                        fileId:
+                            Appwrite.ID.unique(),
+
+                        file:
+                            file
+
+                    });
+
+
+                imageURL =
+                    "https://cloud.appwrite.io/v1/storage/buckets/" +
+                    BUCKET_ID +
+                    "/files/" +
+                    uploadedFile.$id +
+                    "/view?project=" +
+                    "6a867fed002fef251e71";
+
+            }
+
+
+            // ==================================
+            // حفظ العقار
+            // ==================================
+
+            message.innerText =
+                "⏳ جاري حفظ بيانات العقار...";
+
+
+            const data = {
+
+                title:
+                    title,
+
+                price:
+                    price,
+
+                location:
+                    location,
+
+                description:
+                    description,
+
+                property_type:
+                    propertyType,
+
+                rooms:
+                    rooms,
+
+                area:
+                    area,
+
+                image:
+                    imageURL,
+
+                Operation:
+                    operation
+
+            };
+
+
+            const result =
+                await tablesDB.createRow({
+
+                    databaseId:
+                        DATABASE_ID,
+
+                    tableId:
+                        TABLE_ID,
+
+                    rowId:
+                        Appwrite.ID.unique(),
+
+                    data:
+                        data
+
+                });
+
+
+            console.log(
+                "تم حفظ العقار:",
+                result
+            );
+
+
+            // ==================================
+            // نجاح
+            // ==================================
+
+            message.style.background =
+                "#e3f7eb";
+
+            message.style.color =
+                "#23804b";
+
+            message.innerText =
+                "✅ تم حفظ العقار والصورة بنجاح";
+
+
+            form.reset();
+
+            imagePreview.style.display =
+                "none";
+
+            previewImage.src = "";
+
+
+        }
+
+        catch(error) {
+
+            console.error(
+                "Appwrite Error:",
+                error
+            );
+
+
+            message.style.background =
+                "#ffe6e6";
+
+            message.style.color =
+                "#c0392b";
+
+
+            message.innerText =
+                "❌ حدث خطأ: " +
+                error.message;
+
+        }
+
+        finally {
+
+            saveButton.disabled =
+                false;
+
+        }
+
+    }
+);
+
+</script>
+
+</body>
+
+</html>
