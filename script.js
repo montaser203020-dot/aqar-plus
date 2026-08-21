@@ -76,6 +76,10 @@ function createPropertyCard(property) {
     const operation =
         property.Operation || "غير محدد";
 
+    // الحالة القادمة من Appwrite
+    const status =
+        String(property.status ?? "").trim();
+
     const rooms =
         Number(property.rooms || 0);
 
@@ -92,6 +96,35 @@ function createPropertyCard(property) {
         document.createElement("div");
 
     card.className = "property";
+
+
+    // ==========================================
+    // تحديد الحالة التي ستظهر على الموقع
+    // ==========================================
+
+    let statusText = "";
+    let statusClass = "status";
+
+    if (status) {
+
+        // إذا كانت الحالة موجودة في Appwrite
+        statusText = status;
+
+    } else {
+
+        // للعقارات القديمة التي ليس لها status
+        if (operation === "إيجار") {
+
+            statusText = "متاح للإيجار";
+
+        } else {
+
+            statusText = "متاح للبيع";
+
+        }
+
+    }
+
 
     card.innerHTML = `
 
@@ -163,12 +196,16 @@ function createPropertyCard(property) {
                     : ""
             }
 
-            <span class="status">
+            <span class="${statusClass}">
 
                 ${
-                    operation === "إيجار"
-                        ? "🔑 متاح للإيجار"
-                        : "🟢 متاح للبيع"
+                    status === "تم البيع"
+                        ? "🔴 تم البيع"
+                        : status === "تم الإيجار"
+                            ? "🔴 تم الإيجار"
+                            : operation === "إيجار"
+                                ? "🟢 متاح للإيجار"
+                                : "🟢 متاح للبيع"
                 }
 
             </span>
@@ -199,7 +236,9 @@ function createPropertyCard(property) {
     `;
 
 
+    // ==========================================
     // تفاصيل
+    // ==========================================
 
     const detailsButton =
         card.querySelector(".details");
@@ -229,7 +268,9 @@ function createPropertyCard(property) {
     }
 
 
+    // ==========================================
     // اتصال
+    // ==========================================
 
     const callButton =
         card.querySelector(".call-property");
@@ -249,7 +290,9 @@ function createPropertyCard(property) {
     }
 
 
+    // ==========================================
     // واتساب
+    // ==========================================
 
     const whatsappButton =
         card.querySelector(
